@@ -1,9 +1,10 @@
+import React from 'react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useTaskStore } from '../store/taskStore';
 import Column from './Column';
 import { getRankBetween } from '../utils/rank';
 
-const columns = [
+const columns: { id: 'todo' | 'inprogress' | 'done'; title: string }[] = [
   { id: 'todo', title: 'To Do' },
   { id: 'inprogress', title: 'In Progress' },
   { id: 'done', title: 'Done' },
@@ -21,35 +22,29 @@ export default function Board() {
     if (!activeTask) return;
 
     const overId = over.id.toString();
-    let newColumn = activeTask.column;
+    let newColumn: 'todo' | 'inprogress' | 'done' = activeTask.column;
     let newRank = activeTask.rank;
 
     if (overId.startsWith('column-')) {
-      // Dropped on column header – append to that column
-      newColumn = overId.replace('column-', '');
+      const targetColumn = overId.replace('column-', '') as 'todo' | 'inprogress' | 'done';
+      newColumn = targetColumn;
       const columnTasks = tasks
         .filter(t => t.column === newColumn)
         .sort((a, b) => a.rank.localeCompare(b.rank));
       const lastRank = columnTasks.length ? columnTasks[columnTasks.length - 1].rank : null;
       newRank = getRankBetween(lastRank, null);
     } else {
-      // Dropped on a task
       const overTask = tasks.find(t => t.id === overId);
       if (!overTask) return;
       newColumn = overTask.column;
-
-      // Get tasks in target column, excluding the active task if same column
       let columnTasks = tasks
         .filter(t => t.column === newColumn)
         .sort((a, b) => a.rank.localeCompare(b.rank));
-      
       if (newColumn === activeTask.column) {
         columnTasks = columnTasks.filter(t => t.id !== activeTask.id);
       }
-
       const overIndex = columnTasks.findIndex(t => t.id === overId);
-      if (overIndex === -1) return; // shouldn't happen
-
+      if (overIndex === -1) return;
       const prevRank = overIndex > 0 ? columnTasks[overIndex - 1].rank : null;
       const nextRank = overTask.rank;
       newRank = getRankBetween(prevRank, nextRank);

@@ -1,11 +1,11 @@
-import React, { Component, ErrorInfo } from 'react';
+import React, { Component } from 'react';
+import type { ErrorInfo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTaskStore } from '../store/taskStore';
 import TaskCard from './TaskCard';
 import { getRankBetween } from '../utils/rank';
 
-// Error boundary component (defined before usage)
 class TaskCardErrorBoundary extends Component<{ children: React.ReactNode }> {
   state = { hasError: false };
 
@@ -26,7 +26,7 @@ class TaskCardErrorBoundary extends Component<{ children: React.ReactNode }> {
 }
 
 interface ColumnProps {
-  column: string;
+  column: 'todo' | 'inprogress' | 'done';
   title: string;
 }
 
@@ -39,10 +39,8 @@ export default function Column({ column, title }: ColumnProps) {
   const { setNodeRef } = useDroppable({ id: `column-${column}` });
 
   const handleAddTask = () => {
-    // Determine rank for new task (append at the end)
     const lastRank = columnTasks.length ? columnTasks[columnTasks.length - 1].rank : null;
     const newRank = getRankBetween(lastRank, null);
-
     useTaskStore.getState().optimisticCreate({
       title: 'New Task',
       description: '',

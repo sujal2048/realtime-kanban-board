@@ -18,13 +18,11 @@ export default function TaskCard({ task }: TaskCardProps) {
   const optimisticUpdate = useTaskStore(state => state.optimisticUpdate);
   const optimisticDelete = useTaskStore(state => state.optimisticDelete);
 
-  // Check if this is a temporary task (still being synced)
   const isTemporary = task.id.startsWith('temp-');
 
-  // Stable selector for editing tasks
+  // Use the store with proper typing
   const editingTasks = usePresenceStore(state => state.editingTasks, shallow);
 
-  // Memoized list of usernames editing this specific task
   const usersForThisTask = useMemo(
     () => editingTasks.filter(e => e.taskId === task.id).map(e => e.username),
     [editingTasks, task.id]
@@ -45,7 +43,6 @@ export default function TaskCard({ task }: TaskCardProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Emit startEdit/stopEdit only when editing state changes
   useEffect(() => {
     if (editing) {
       socket.emit('task:startEdit', { taskId: task.id });
@@ -70,7 +67,6 @@ export default function TaskCard({ task }: TaskCardProps) {
     setEditing(false);
   };
 
-  // Stop propagation to prevent drag events from interfering with buttons
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEditing(true);
@@ -111,7 +107,6 @@ export default function TaskCard({ task }: TaskCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      // Only apply drag listeners when not editing
       {...(!editing ? attributes : {})}
       {...(!editing ? listeners : {})}
       className={`task-card ${isDragging ? 'dragging' : ''}`}
