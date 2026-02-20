@@ -1,4 +1,3 @@
-import React from 'react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useTaskStore } from '../store/taskStore';
 import Column from './Column';

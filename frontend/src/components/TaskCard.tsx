@@ -4,8 +4,9 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '../types';
 import { useTaskStore } from '../store/taskStore';
 import { usePresenceStore } from '../store/presenceStore';
-import { socket } from '../socket/client';
+import { useStore } from 'zustand'; // import useStore instead of direct hook
 import { shallow } from 'zustand/shallow';
+import { socket } from '../socket/client';
 
 interface TaskCardProps {
   task: Task;
@@ -20,8 +21,12 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   const isTemporary = task.id.startsWith('temp-');
 
-  // Use the store with proper typing
-  const editingTasks = usePresenceStore(state => state.editingTasks, shallow);
+  // Use useStore with shallow equality to avoid type issues
+  const editingTasks = useStore(
+    usePresenceStore,
+    state => state.editingTasks,
+    shallow
+  );
 
   const usersForThisTask = useMemo(
     () => editingTasks.filter(e => e.taskId === task.id).map(e => e.username),
