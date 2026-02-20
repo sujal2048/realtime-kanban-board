@@ -13,8 +13,8 @@ export const handleCreate = async (io: Server, socket: Socket, data: any) => {
 
 export const handleUpdate = async (io: Server, socket: Socket, data: any) => {
   try {
-    const { taskId, title, description } = data;
-    const task = await updateTask(taskId, { title, description });
+    const { id, ...changes } = data; // changes is an object with title, description, etc.
+    const task = await updateTask(id, changes);
     io.to('board').emit('task:updated', { task, updatedBy: socket.id });
   } catch (err: any) {
     socket.emit('error', { message: err.message });
@@ -23,8 +23,8 @@ export const handleUpdate = async (io: Server, socket: Socket, data: any) => {
 
 export const handleMove = async (io: Server, socket: Socket, data: any) => {
   try {
-    const { taskId, column, afterId } = data;
-    const task = await moveTask(taskId, column, afterId);
+    const { id, column, afterId } = data;
+    const task = await moveTask({ id, column, afterId });
     io.to('board').emit('task:moved', { task, movedBy: socket.id });
   } catch (err: any) {
     socket.emit('error', { message: err.message });
@@ -33,9 +33,9 @@ export const handleMove = async (io: Server, socket: Socket, data: any) => {
 
 export const handleDelete = async (io: Server, socket: Socket, data: any) => {
   try {
-    const { taskId } = data;
-    await deleteTask(taskId);
-    io.to('board').emit('task:deleted', { taskId, deletedBy: socket.id });
+    const { id } = data;
+    await deleteTask(id);
+    io.to('board').emit('task:deleted', { id, deletedBy: socket.id });
   } catch (err: any) {
     socket.emit('error', { message: err.message });
   }
