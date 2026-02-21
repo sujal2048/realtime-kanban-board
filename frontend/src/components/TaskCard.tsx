@@ -4,8 +4,6 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '../types';
 import { useTaskStore } from '../store/taskStore';
 import { usePresenceStore } from '../store/presenceStore';
-import type { EditingInfo } from '../store/presenceStore';
-import { shallow } from 'zustand/shallow';
 import { socket } from '../socket/client';
 
 interface TaskCardProps {
@@ -21,12 +19,17 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   const isTemporary = task.id.startsWith('temp-');
 
-  // Use presence store hook with shallow equality
-  const editingTasks = usePresenceStore(state => state.editingTasks, shallow);
-
+  // Get raw editing tasks and filter manually
+  const allEditingTasks = usePresenceStore(state => state.editingTasks);
+  
   const usersForThisTask = useMemo(
-    () => editingTasks.filter(e => e.taskId === task.id).map(e => e.username),
-    [editingTasks, task.id]
+    () => {
+      if (!allEditingTasks) return [];
+      return allEditingTasks
+        .filter(e => e && e.taskId === task.id)
+        .map(e => e.username);
+    },
+    [allEditingTasks, task.id]
   );
 
   const {
@@ -80,21 +83,19 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   if (editing) {
     return (
-      <div className="task-card editing">
+      <div className="task-card editing" onClick={e => e.stopPropagation()}>
         <input
           type="text"
           value={editTitle}
           onChange={e => setEditTitle(e.target.value)}
           placeholder="Title"
           autoFocus
-          onClick={e => e.stopPropagation()}
         />
         <textarea
           value={editDescription}
           onChange={e => setEditDescription(e.target.value)}
           placeholder="Description"
           rows={2}
-          onClick={e => e.stopPropagation()}
         />
         <div className="task-actions">
           <button onClick={handleCancel}>Cancel</button>
@@ -108,8 +109,8 @@ export default function TaskCard({ task }: TaskCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      {...(!editing ? attributes : {})}
-      {...(!editing ? listeners : {})}
+      {...attributes}
+      {...listeners}
       className={`task-card ${isDragging ? 'dragging' : ''}`}
     >
       <div className="task-header">
