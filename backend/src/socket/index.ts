@@ -12,6 +12,7 @@ export function registerSocketHandlers(io: Server) {
 
     // Presence: join a room and broadcast users
     socket.on('join_board', (username: string) => {
+      console.log(`👤 ${username} joined`);
       socket.data.username = username;
       socket.join('board');
       io.to('board').emit('presence', getOnlineUsers(io));
@@ -19,14 +20,17 @@ export function registerSocketHandlers(io: Server) {
 
     // Task operations
    socket.on('task:create', async (data, callback) => {
+    console.log('📤 task:create received', data);
   try {
     const { tempId, ...taskData } = data; // extract tempId
     const task = await createTask(taskData);
+     console.log('✅ Task created in DB', task);
     // Return both the created task and the tempId so client can replace
     callback?.({ success: true, task, tempId });
     // Broadcast to all other clients (excluding sender? We'll broadcast to all, sender will handle via callback)
     io.emit('task:created', task);
   } catch (err) {
+    console.error('❌ DB error', err);
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     callback?.({ success: false, error: errorMessage });
   }

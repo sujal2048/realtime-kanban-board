@@ -25,7 +25,7 @@ socket.on('disconnect', () => {
 socket.on('init', (tasks) => {
   useTaskStore.getState().init(tasks);
 });
-
+socket.on('connect_error', (err) => console.error('❌ Connection error', err.message));
 socket.on('task:created', (task) => {
     console.log('Received task:created', task); // <-- ADD THIS
   useTaskStore.getState().applyServerUpdate(task);
@@ -43,6 +43,7 @@ socket.on('task:deleted', (id) => {
 
 // Presence events
 socket.on('presence', (users: string[]) => {
+  console.log(' presence received', users);
   usePresenceStore.getState().setOnlineUsers(users);
 });
 

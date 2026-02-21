@@ -15,6 +15,8 @@ function App() {
       socket.connect();
       // Emit join_board after connection (socket queues events until connected)
       socket.emit('join_board', username);
+      console.log('📤 join_board emitted', username);
+
     }
     return () => {
       socket.disconnect();
