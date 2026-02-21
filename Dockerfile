@@ -24,5 +24,6 @@ COPY --from=builder /app/backend/package.json ./backend/
 COPY --from=builder /app/frontend/dist ./frontend/dist
 
 ENV NODE_ENV=production
+WORKDIR /app/backend
 EXPOSE 3001
-CMD sh -c "node backend/dist/index.js"
+CMD ["node", "dist/index.js"]
