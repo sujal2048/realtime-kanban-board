@@ -36,6 +36,15 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   } as Task;
   set(state => ({ tasks: [...state.tasks, newTask] }));
 
+   setTimeout(() => {
+    set(state => {
+      if (state.tasks.some(t => t.id === tempId)) {
+        return { tasks: state.tasks.filter(t => t.id !== tempId) };
+      }
+      return state;
+    });
+  }, 10000);
+
   if (!get().online) {
     offlineQueue.enqueue({ type: 'CREATE', payload: { ...task, tempId } });
   } else {

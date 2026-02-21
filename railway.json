@@ -5,3 +5,11 @@
     "startCommand": "cd backend && npm start"
   }
 }
+
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd backend && npm install && npx prisma migrate deploy && npm run build",
+    "startCommand": "cd backend && npm start"
+  }
+}
