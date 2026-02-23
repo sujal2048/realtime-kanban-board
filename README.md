@@ -3,6 +3,8 @@ The general theory of collaboration algorithms is to transmit changes between us
 
 
 1.In OT, every user action is broken down into one or more operations. These operations are transmitted between clients along with their baseline reference; if two users perform actions at the same time, incoming operations must be transformed to include the local operations that have happened since that baseline. They are then applied locally and form the new baseline.
+
+
 2.The magic of CRDT is due in large part to how it breaks down data into such small pieces that it generally doesn't need to transform the change itself, only the position of the change. For example, text data collaboration with CRDT treats every character as a separate entity.
 
 
